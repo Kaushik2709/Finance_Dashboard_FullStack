@@ -7,6 +7,7 @@ import { RoleGuard } from './components/guards/RoleGuard.jsx';
 import { ROLES } from './utils/constants.js';
 
 import { Login } from './pages/Login.jsx';
+import { Register } from './pages/Register.jsx';
 import { Dashboard } from './pages/Dashboard.jsx';
 import { Records } from './pages/Records.jsx';
 import { Users } from './pages/Users.jsx';
@@ -19,6 +20,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           <Route
             path="/"
