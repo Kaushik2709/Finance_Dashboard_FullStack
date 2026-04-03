@@ -24,9 +24,9 @@ export const Dashboard = () => {
   const [toDate, setToDate] = useState(
     new Date().toISOString().split('T')[0]
   );
-
+  
   const { summary, charts, recent, loading } = useDashboard(fromDate, toDate);
-
+  
   const tableColumns = [
     { key: 'date', label: 'Date', render: (v) => formatDate(v) },
     { key: 'category', label: 'Category' },
