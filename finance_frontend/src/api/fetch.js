@@ -24,27 +24,37 @@ class FetchClient {
         headers,
       });
 
-      // On 401, clear token and redirect to login
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-        return null;
-      }
+      const contentType = response.headers.get('content-type');
+      const isJson = contentType && contentType.includes('application/json');
+      const body = isJson ? await response.json().catch(() => null) : null;
 
       if (!response.ok) {
-        const error = new Error('API Error');
+        const errorMessage =
+          body?.error?.message ||
+          body?.message ||
+          'API Error';
+
+        const error = new Error(errorMessage);
         error.status = response.status;
-        error.data = await response.json().catch(() => ({}));
+        error.data = body || {};
+
+        // If we had a session token and it's no longer valid, clear it and
+        // force a login redirect. For invalid login attempts (no token yet),
+        // we simply throw so the UI can show the error.
+        if (response.status === 401) {
+          const hadToken = Boolean(token);
+          localStorage.removeItem('token');
+          if (hadToken) {
+            window.location.href = '/login';
+          }
+        }
+
         throw error;
       }
 
-      // Handle empty response
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        return null;
-      }
-
-      return await response.json();
+      // Handle empty or non-JSON responses
+      if (!isJson) return null;
+      return body;
     } catch (error) {
       console.error('Fetch error:', error);
       throw error;

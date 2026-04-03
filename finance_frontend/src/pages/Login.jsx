@@ -23,8 +23,10 @@ export const Login = () => {
 
     try {
       setLoading(true);
-      await login(email, password);
-      navigate("/dashboard");
+      const result = await login(email, password);
+      if (result?.token) {
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Login error:", error);
     } finally {

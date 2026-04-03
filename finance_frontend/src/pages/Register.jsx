@@ -46,8 +46,10 @@ export const Register = () => {
 
     try {
       setLoading(true);
-      await register(trimmedName, trimmedEmail, password);
-      navigate("/dashboard");
+      const result = await register(trimmedName, trimmedEmail, password);
+      if (result?.token) {
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Registration error:", error);
     } finally {

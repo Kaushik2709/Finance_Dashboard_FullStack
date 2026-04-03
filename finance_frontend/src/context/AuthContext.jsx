@@ -46,14 +46,17 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       const response = await authAPI.register(name, email, password);
-      if (response?.token) {
-        localStorage.setItem("token", response.token);
-        setAuth({
-          token: response.token,
-          user: decodeUserFromToken(response.token),
-          isAuthenticated: true,
-        });
+      if (!response?.token) {
+        throw new Error("Registration failed");
       }
+
+      localStorage.setItem("token", response.token);
+      setAuth({
+        token: response.token,
+        user: decodeUserFromToken(response.token),
+        isAuthenticated: true,
+      });
+
       return response;
     } catch (error) {
       const firstDetail = error.data?.error?.details?.[0]?.message;
@@ -67,15 +70,17 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await authAPI.login(email, password);
-      if (response?.token) {
-        localStorage.setItem("token", response.token);
-        setAuth({
-          token: response.token,
-          user: decodeUserFromToken(response.token),
-          isAuthenticated: true,
-        });
-        return response;
+      if (!response?.token) {
+        throw new Error("Invalid credentials");
       }
+
+      localStorage.setItem("token", response.token);
+      setAuth({
+        token: response.token,
+        user: decodeUserFromToken(response.token),
+        isAuthenticated: true,
+      });
+      return response;
     } catch (error) {
       toast.error(error.data?.error?.message || error.data?.message || "Invalid credentials");
       throw error;
