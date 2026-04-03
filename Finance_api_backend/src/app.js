@@ -21,6 +21,11 @@ app.use(express.json());
 // Serve the demo frontend (single-page)
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+// Root route (also satisfies Render/uptime HEAD checks)
+app.get('/', (req, res) => {
+  res.json({ success: true, data: { name: 'Finance API', status: 'ok' } });
+});
+
 app.get('/health', (req, res) => {
   res.json({ success: true, data: { status: 'ok' } });
 });
@@ -36,26 +41,26 @@ app.use((req, res, next) => {
 });
 
 // Error handler
-// app.use((err, req, res, next) => {
-//   if (err instanceof AppError) {
-//     return sendError(res, err.message, err.code, err.details, err.statusCode);
-//   }
+app.use((err, req, res, next) => {
+  if (err instanceof AppError) {
+    return sendError(res, err.message, err.code, err.details, err.statusCode);
+  }
 
-//   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-//     if (err.code === 'P2002') {
-//       return sendError(res, 'Duplicate resource', 'DUPLICATE_KEY', undefined, 400);
-//     }
-//     if (err.code === 'P2003') {
-//       return sendError(res, 'Referenced resource not found', 'FOREIGN_KEY_VIOLATION', undefined, 400);
-//     }
-//     if (err.code === 'P2025') {
-//       return sendError(res, 'Resource not found', 'NOT_FOUND', undefined, 404);
-//     }
-//   }
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === 'P2002') {
+      return sendError(res, 'Duplicate resource', 'DUPLICATE_KEY', undefined, 400);
+    }
+    if (err.code === 'P2003') {
+      return sendError(res, 'Referenced resource not found', 'FOREIGN_KEY_VIOLATION', undefined, 400);
+    }
+    if (err.code === 'P2025') {
+      return sendError(res, 'Resource not found', 'NOT_FOUND', undefined, 404);
+    }
+  }
 
-//   console.error(err);
-//   return sendError(res, 'An unexpected error occurred', 'INTERNAL_SERVER_ERROR', undefined, 500);
-// });
+  console.error(err);
+  return sendError(res, 'An unexpected error occurred', 'INTERNAL_SERVER_ERROR', undefined, 500);
+});
 
 const port = Number(process.env.PORT || 3000);
 
