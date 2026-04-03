@@ -77,8 +77,15 @@ npm install
 
 2) Create environment file
 
-```bash
-copy .env.example .env
+Create `Finance_api_backend/.env` (do not commit this file):
+
+```env
+PORT=3000
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB_NAME?sslmode=require
+DIRECT_URL=postgresql://USER:PASSWORD@HOST:5432/DB_NAME?sslmode=require
+JWT_SECRET=CHANGE_ME
+JWT_EXPIRES_IN=8h
+BCRYPT_SALT_ROUNDS=10
 ```
 
 3) Apply Prisma migration (creates tables)
@@ -109,14 +116,35 @@ curl http://localhost:3000/health
 
 ## Environment Variables
 
-Example file: `.env.example`
+These are read from `Finance_api_backend/.env` locally and from your hosting provider’s environment variables in deployment.
 
 - `PORT` (default `3000`)
 - `DATABASE_URL` (PostgreSQL connection string used by Prisma)
+- `DIRECT_URL` (direct DB connection string used by Prisma migrations)
 - `JWT_SECRET` (required)
 - `JWT_EXPIRES_IN` (default `8h`)
 - `BCRYPT_SALT_ROUNDS` (default `10`)
 - `PGSSL` (present in env template; SSL is typically configured through `DATABASE_URL` / hosting settings)
+
+---
+
+## Deploy Notes (Supabase + Render)
+
+Prisma migrations are **not applied automatically** unless you run a Prisma migrate command against your Supabase database.
+
+This backend is set up so that `npm start` runs `prisma migrate deploy` automatically (via the `prestart` script). On Render, that means migrations will run during service start.
+
+### Required env vars on Render
+
+- `DATABASE_URL`: runtime connection string
+- `DIRECT_URL`: direct connection string used by Prisma for migrations
+
+For Supabase specifically, it’s common to use:
+
+- `DATABASE_URL` = the **connection pooler** URL (transaction pooler / PgBouncer)
+- `DIRECT_URL` = the **direct** database URL (port 5432)
+
+Make sure your URLs include SSL (e.g. `?sslmode=require`) as required by Supabase.
 
 ---
 

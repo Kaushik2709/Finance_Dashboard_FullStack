@@ -9,19 +9,14 @@
 
 This app calls the backend via `/api/*` by default and uses a Vite dev proxy.
 
-1) Copy env file:
+1) Create a `.env` file in `finance-frontend/` with:
 
 ```bash
-cp .env.example .env
+VITE_API_URL=/api
+VITE_API_PROXY_TARGET=http://localhost:3000
 ```
 
-PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-2) If your backend runs on a non-default port, edit `.env`:
+2) If your backend runs on a non-default port, update `VITE_API_PROXY_TARGET`.
 
 - `VITE_API_PROXY_TARGET=http://localhost:3000` (set this to your backend origin)
 
