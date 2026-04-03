@@ -4,6 +4,11 @@ This project is a backend API for a finance dashboard assessment. It demonstrate
 
 If you are reviewing this as an HR/engineering assessment: this repo focuses on **structure, clarity, business rules, and consistency**, rather than production-grade scale.
 
+## Frontend URL
+- Frontend: [Finance Dashboard Frontend](https://finance-dashboard-fullstack-frontend.onrender.com)
+
+## Backend URL
+- Backend: [Finance Dashboard Backend](https://finance-dashboard-fullstack.onrender.com)
 ---
 
 ## What This Backend Covers (Assessment Checklist)
