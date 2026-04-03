@@ -4,6 +4,7 @@ const { body, param, query } = require('express-validator');
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 const validate = require('../middleware/validate');
+const asyncHandler = require('../middleware/asyncHandler');
 const {
   listUsers,
   createUser,
@@ -16,8 +17,6 @@ const { sendSuccess } = require('../utils/response');
 const { AppError } = require('../utils/errors');
 
 const router = express.Router();
-
-const asyncHandler = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 
 router.use(authenticate, authorize('admin'));
 

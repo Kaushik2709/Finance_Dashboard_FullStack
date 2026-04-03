@@ -4,12 +4,11 @@ const { query } = require('express-validator');
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 const validate = require('../middleware/validate');
+const asyncHandler = require('../middleware/asyncHandler');
 const { sendSuccess } = require('../utils/response');
 const { getSummary, getByCategory, getTrends, getRecent } = require('../services/dashboard.service');
 
 const router = express.Router();
-
-const asyncHandler = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 
 router.get(
   '/summary',

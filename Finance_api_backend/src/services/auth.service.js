@@ -4,57 +4,11 @@ const { randomUUID } = require('crypto');
 
 const prisma = require('../config/db');
 const { AppError } = require('../utils/errors');
-
-const blacklistedTokens = new Map();
-
-const cleanupBlacklistedTokens = () => {
-  const now = Date.now();
-
-  for (const [jti, expiresAt] of blacklistedTokens.entries()) {
-    if (expiresAt <= now) {
-      blacklistedTokens.delete(jti);
-    }
-  }
-};
-
-const sanitizeUser = (user) => {
-  if (!user) {
-    return null;
-  }
-
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    is_active: user.isActive,
-    created_at: user.createdAt,
-  };
-};
+const { sanitizeUser, getUserById } = require('./user.service');
 
 const getUserByEmail = async (email) => {
   return prisma.user.findUnique({
     where: { email },
-  });
-};
-
-const getUserById = async (userId, options = {}) => {
-  if (options.includePasswordHash === false) {
-    return prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-      },
-    });
-  }
-
-  return prisma.user.findUnique({
-    where: { id: userId },
   });
 };
 
@@ -110,14 +64,6 @@ const register = async ({ name, email, password }) => {
       },
     });
 
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
-        action: 'REGISTER',
-        resource: `users:${user.id}`,
-      },
-    });
-
     const token = signToken(user);
 
     return {
@@ -158,31 +104,13 @@ const login = async ({ email, password }) => {
   };
 };
 
-const blacklistToken = (payload) => {
-  if (!payload?.jti || !payload?.exp) {
-    return;
-  }
-
-  cleanupBlacklistedTokens();
-  blacklistedTokens.set(payload.jti, payload.exp * 1000);
-};
-
-const isTokenBlacklisted = (jti) => {
-  cleanupBlacklistedTokens();
-  return blacklistedTokens.has(jti);
-};
-
 const getCurrentUser = async (userId) => {
   const user = await getUserById(userId, { includePasswordHash: false });
-  return user ? sanitizeUser(user) : null;
+  return user;
 };
 
 module.exports = {
   login,
-  blacklistToken,
-  isTokenBlacklisted,
   getCurrentUser,
-  getUserById,
-  sanitizeUser,
   register,
 };

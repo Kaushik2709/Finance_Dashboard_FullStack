@@ -4,12 +4,11 @@ const { body } = require('express-validator');
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 const validate = require('../middleware/validate');
-const { login, register, blacklistToken, getCurrentUser } = require('../services/auth.service');
+const asyncHandler = require('../middleware/asyncHandler');
+const { login, register, getCurrentUser } = require('../services/auth.service');
 const { sendSuccess } = require('../utils/response');
 
 const router = express.Router();
-
-const asyncHandler = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 
 router.post(
   '/register',
@@ -47,7 +46,7 @@ router.get(
   authorize('viewer', 'analyst', 'admin'),
   asyncHandler(async (req, res) => {
     const user = await getCurrentUser(req.user.sub);
-    return sendSuccess(res, { user: req.user.currentUser || user });
+    return sendSuccess(res, { user });
   })
 );
 
@@ -55,7 +54,6 @@ router.post(
   '/logout',
   authenticate,
   asyncHandler(async (req, res) => {
-    blacklistToken(req.user);
     return sendSuccess(res, { message: 'Logged out successfully' });
   })
 );

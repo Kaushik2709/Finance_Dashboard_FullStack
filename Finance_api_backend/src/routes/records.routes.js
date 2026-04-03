@@ -4,13 +4,12 @@ const { body, param, query } = require('express-validator');
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 const validate = require('../middleware/validate');
+const asyncHandler = require('../middleware/asyncHandler');
 const { AppError } = require('../utils/errors');
 const { sendSuccess } = require('../utils/response');
 const { listRecords, getRecordById, createRecord, updateRecord, deleteRecord } = require('../services/record.service');
 
 const router = express.Router();
-
-const asyncHandler = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 
 router.get(
   '/',
@@ -75,7 +74,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const actor = {
       sub: req.user.sub,
-      role: req.user.currentUser.role,
+      role: req.user.role,
     };
     const record = await createRecord(req.body, actor);
     return sendSuccess(res, { record }, undefined, 201);
@@ -105,7 +104,7 @@ router.patch(
   asyncHandler(async (req, res) => {
     const actor = {
       sub: req.user.sub,
-      role: req.user.currentUser.role,
+      role: req.user.role,
     };
     const record = await updateRecord(req.params.id, req.body, actor);
     return sendSuccess(res, { record });
@@ -122,7 +121,7 @@ router.delete(
   asyncHandler(async (req, res) => {
     const actor = {
       sub: req.user.sub,
-      role: req.user.currentUser.role,
+      role: req.user.role,
     };
     const record = await deleteRecord(req.params.id, actor);
     return sendSuccess(res, { record });

@@ -5,25 +5,10 @@ const prisma = require('../config/db');
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 const validate = require('../middleware/validate');
+const asyncHandler = require('../middleware/asyncHandler');
 const { sendSuccess } = require('../utils/response');
 
 const router = express.Router();
-
-const asyncHandler = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
-
-const logAudit = async (userId, action, resource) => {
-  if (!userId) {
-    return;
-  }
-
-  await prisma.auditLog.create({
-    data: {
-      userId,
-      action,
-      resource,
-    },
-  });
-};
 
 router.get(
   '/',
@@ -72,8 +57,6 @@ router.post(
         createdAt: true,
       },
     });
-
-    await logAudit(req.user.sub, 'CREATE_CATEGORY', `categories:${category.id}`);
 
     return sendSuccess(
       res,

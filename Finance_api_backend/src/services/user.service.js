@@ -12,20 +12,6 @@ const sanitizeUser = (user) => (user ? {
   created_at: user.createdAt,
 } : null);
 
-const logAudit = async (userId, action, resource) => {
-  if (!userId) {
-    return;
-  }
-
-  await prisma.auditLog.create({
-    data: {
-      userId,
-      action,
-      resource,
-    },
-  });
-};
-
 const getUserById = async (userId, options = {}) => {
   if (options.includePasswordHash === false) {
     const user = await prisma.user.findUnique({
@@ -93,8 +79,6 @@ const createUser = async ({ name, email, password, role }, actorId) => {
       createdAt: true,
     },
   });
-
-  await logAudit(actorId, 'CREATE_USER', `users:${user.id}`);
   return sanitizeUser(user);
 };
 
@@ -119,8 +103,6 @@ const updateUser = async (userId, updates, actorId) => {
         createdAt: true,
       },
     });
-
-    await logAudit(actorId, 'UPDATE_USER', `users:${userId}`);
     return sanitizeUser(user);
   } catch (error) {
     if (error?.code === 'P2025') {
@@ -145,8 +127,6 @@ const changeUserRole = async (userId, role, actorId) => {
         createdAt: true,
       },
     });
-
-    await logAudit(actorId, 'CHANGE_USER_ROLE', `users:${userId}`);
     return sanitizeUser(user);
   } catch (error) {
     if (error?.code === 'P2025') {
@@ -182,8 +162,6 @@ const toggleUserStatus = async (userId, actorId) => {
       createdAt: true,
     },
   });
-
-  await logAudit(actorId, 'TOGGLE_USER_STATUS', `users:${userId}`);
   return sanitizeUser(user);
 };
 

@@ -29,20 +29,6 @@ const recordToResponse = (record) => ({
     : undefined,
 });
 
-const logAudit = async (userId, action, resource) => {
-  if (!userId) {
-    return;
-  }
-
-  await prisma.auditLog.create({
-    data: {
-      userId,
-      action,
-      resource,
-    },
-  });
-};
-
 const ensureCategoryTypeMatches = (category, recordType) => {
   if (!category) {
     throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
@@ -178,8 +164,6 @@ const createRecord = async (payload, actor) => {
       },
     },
   });
-
-  await logAudit(actor.sub, 'CREATE_RECORD', `records:${record.id}`);
   return recordToResponse(record);
 };
 
@@ -231,8 +215,6 @@ const updateRecord = async (recordId, payload, actor) => {
       },
     },
   });
-
-  await logAudit(actor.sub, 'UPDATE_RECORD', `records:${recordId}`);
   return recordToResponse(record);
 };
 
@@ -258,8 +240,6 @@ const deleteRecord = async (recordId, actor) => {
     where: { id: recordId },
     data: { isDeleted: true },
   });
-
-  await logAudit(actor.sub, 'DELETE_RECORD', `records:${recordId}`);
 
   return {
     id: recordId,
