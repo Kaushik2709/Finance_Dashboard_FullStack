@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { PrivateRoute } from './components/guards/PrivateRoute.jsx';
@@ -16,7 +16,7 @@ import { NotFound } from './pages/NotFound.jsx';
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -72,7 +72,7 @@ function App() {
 
         <Toaster position="top-right" />
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

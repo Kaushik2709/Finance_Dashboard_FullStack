@@ -45,7 +45,7 @@ class FetchClient {
           const hadToken = Boolean(token);
           localStorage.removeItem('token');
           if (hadToken) {
-            window.location.href = '/login';
+            window.location.href = '/#/login';
           }
         }
 
